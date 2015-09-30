@@ -71,6 +71,7 @@ custom_current = newcurr;
 else
 pr_info("Main switch disabled, neglecting values\n");
 return count;
+
 	int newcurr;
 	sscanf(buf, "%d", &newcurr);
 	if(mswitch == 1 && newcurr <= MAX_VBUS_CURRENT)
