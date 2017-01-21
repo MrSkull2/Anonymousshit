@@ -19,8 +19,6 @@
 #include <linux/kernel.h>
 #include "thundercharge_control.h"
 
-int mswitch=0;
-int custom_current=500;
 #define ENABLED             0
 #define AC_CURRENT          1350
 #define USB_CURRENT         1000
@@ -64,14 +62,6 @@ static ssize_t cust_ac_current_show(struct kobject *kobj, struct kobj_attribute 
 
 static ssize_t cust_usb_current_store(struct kobject *kobj, struct kobj_attribute *attr, const char *buf, size_t count)
 {
-int newcurr;
-sscanf(buf, "%d", &newcurr);
-if(mswitch==1)
-custom_current = newcurr;
-else
-pr_info("Main switch disabled, neglecting values\n");
-return count;
-
 	int newcurr;
 	sscanf(buf, "%d", &newcurr);
 	if(mswitch == 1 && newcurr <= MAX_VBUS_CURRENT)
