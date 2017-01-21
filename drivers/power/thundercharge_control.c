@@ -22,8 +22,8 @@
 int mswitch=0;
 int custom_current=500;
 #define ENABLED             0
-#define AC_CURRENT          1100
-#define USB_CURRENT         500
+#define AC_CURRENT          1350
+#define USB_CURRENT         1000
 #define MAX_VBUS_CURRENT    1500
 #define THUNDERCHARGE       "thundercharge"
 
