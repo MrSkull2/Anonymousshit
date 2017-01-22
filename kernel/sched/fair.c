@@ -1336,8 +1336,8 @@ unsigned int __read_mostly sysctl_sched_downmigrate_pct = 80;
  * Tasks whose nice value is > sysctl_sched_upmigrate_min_nice are never
  * considered as "big" tasks.
  */
-static int __read_mostly sched_upmigrate_min_nice = 5;
-int __read_mostly sysctl_sched_upmigrate_min_nice = 5;
+static int __read_mostly sched_upmigrate_min_nice = 9;
+int __read_mostly sysctl_sched_upmigrate_min_nice = 9;
 
 /*
  * Tunable to govern scheduler wakeup placement CPU selection
@@ -2695,7 +2695,7 @@ static inline int nr_big_tasks(struct rq *rq)
 
 #else	/* CONFIG_SCHED_HMP */
 
-#define sysctl_sched_enable_power_aware 0
+#define sysctl_sched_enable_power_aware 1
 
 static inline int select_best_cpu(struct task_struct *p, int target, int reason)
 {
@@ -4576,30 +4576,6 @@ static inline void destroy_cfs_bandwidth(struct cfs_bandwidth *cfs_b) {}
 static inline void unthrottle_offline_cfs_rqs(struct rq *rq) {}
 
 #endif /* CONFIG_CFS_BANDWIDTH */
-
-/*
- * Return total number of tasks "eligible" to run on highest capacity cpu
- *
- * This is simply nr_big_tasks for cpus which are not of max_capacity and
- * (nr_running - nr_small_tasks) for cpus of max_capacity
- */
-unsigned int nr_eligible_big_tasks(int cpu)
-{
-	struct rq *rq = cpu_rq(cpu);
-	int nr_big = rq->nr_big_tasks;
-	int nr = rq->nr_running;
-	int nr_small = rq->nr_small_tasks;
-
-	if (rq->capacity != max_capacity)
-		return nr_big;
-
-	/* Consider all (except small) tasks on max_capacity cpu as big tasks */
-	nr_big = nr - nr_small;
-	if (nr_big < 0)
-		nr_big = 0;
-
-	return nr_big;
-}
 
 /**************************************************
  * CFS operations on tasks:
@@ -7365,11 +7341,6 @@ void idle_balance(int this_cpu, struct rq *this_rq)
 		interval = msecs_to_jiffies(sd->balance_interval);
 		if (time_after(next_balance, sd->last_balance + interval))
 			next_balance = sd->last_balance + interval;
-			/*
-			* Stop searching for tasks to pull if there are
-			* now runnable tasks on this rq.
-			*/
- 			if (pulled_task || this_rq->nr_running > 0) {
 
 		/*
 		 * Stop searching for tasks to pull if there are
